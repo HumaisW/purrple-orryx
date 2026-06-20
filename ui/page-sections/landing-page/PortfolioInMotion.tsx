@@ -249,7 +249,10 @@ export default function PortfolioInMotion() {
           <div className="absolute top-0 bottom-0 left-0 w-8 md:w-24 bg-gradient-to-r from-[#0f0f13] to-transparent z-10 pointer-events-none"></div>
           <div className="absolute top-0 bottom-0 right-0 w-8 md:w-24 bg-gradient-to-l from-[#0f0f13] to-transparent z-10 pointer-events-none"></div>
 
-          <div className="flex w-max animate-marquee gap-3 sm:gap-4 py-4">
+          <div
+  className="flex w-max animate-marquee gap-3 sm:gap-4 py-4"
+  style={{ animationDuration: "240s" }}
+>
             {[...GALLERY_IMAGES, ...GALLERY_IMAGES].map((slide, idx) => {
               return (
                 <div
