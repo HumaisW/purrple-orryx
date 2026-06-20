@@ -60,10 +60,9 @@ export default function Difference() {
 
             {/* Heading */}
             <h2 className="text-[2.5rem] sm:text-[3rem] md:text-[4rem] lg:text-[3.5rem] xl:text-[4.5rem] font-sans font-black tracking-tighter uppercase text-[#020202] leading-[0.85] mb-16">
-              <span className="block">We don't just</span>
-              <span className="block">plan the event.</span>
-              <span className="block text-[#E5097F]">We plan the</span>
-              <span className="block text-[#E5097F]">return on it.</span>
+              <span className="block">We turn business</span>
+<span className="block">moments into</span>
+<span className="block text-[#E5097F]">live experiences.</span>
             </h2>
 
             {/* List */}
