@@ -19,7 +19,7 @@ const SLIDES = [
     image: "/awwards/london gate.jpeg",
     index: "02 / 10",
     title: "LONDON GATE",
-    subtitle: "Riyadh · Full production",
+    subtitle: "UAE · Full Event Managemnt & production",
     label: "AWARDS & GALA"
   },
   {
