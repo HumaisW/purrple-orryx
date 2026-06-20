@@ -56,6 +56,62 @@ const SLIDES = [
   },
 ];
 
+const GALLERY_IMAGES = [
+  ...SLIDES,
+
+  { image: "/newimgs/abg-lab-exhibition-team.jpg", title: "Exhibition Experience" },
+  { image: "/newimgs/ames-grand-opening-entrance.jpg", title: "Grand Opening" },
+  { image: "/newimgs/av-lighting-gala-setup.jpg", title: "AV and Lighting" },
+  { image: "/newimgs/beach-team-building-tug-of-war.jpg", title: "Team Building" },
+  { image: "/newimgs/binance-leadership-dinner.jpg", title: "Leadership Dinner" },
+  { image: "/newimgs/conference-audience-keynote.jpg", title: "Corporate Conference" },
+  { image: "/newimgs/conference-classroom-setup.jpg", title: "Conference Production" },
+  { image: "/newimgs/corporate-gala-dinner-pink-lighting.jpg", title: "Gala Dinner" },
+  { image: "/newimgs/corporate-team-building-activity.jpg", title: "Team Experience" },
+  { image: "/newimgs/cultural-gala-performance.jpg", title: "Cultural Performance" },
+  { image: "/newimgs/cummins-exhibition-stand.jpg", title: "Exhibition Stand" },
+  { image: "/newimgs/family-day-face-painting.jpg", title: "Family Day" },
+  { image: "/newimgs/family-day-gardening-activity.jpg", title: "Family Engagement" },
+  { image: "/newimgs/family-day-live-entertainment.jpg", title: "Live Entertainment" },
+  { image: "/newimgs/family-day-outdoor-celebration.jpg", title: "Outdoor Celebration" },
+  { image: "/newimgs/family-day-stage-program.jpg", title: "Family Day Stage" },
+  { image: "/newimgs/fcm-annual-ball-ballroom.jpg", title: "FCM Annual Ball" },
+  { image: "/newimgs/fcm-annual-ball-dance-floor.jpg", title: "Annual Ball Celebration" },
+  { image: "/newimgs/fcm-annual-ball-stage-2024.jpg", title: "FCM Annual Ball Stage" },
+  { image: "/newimgs/fcm-business-session-panel.jpg", title: "Business Session" },
+  { image: "/newimgs/fcm-hollywood-photo-booth.jpg", title: "Themed Photo Experience" },
+  { image: "/newimgs/fcm-immersive-guest-activation.jpg", title: "Guest Activation" },
+  { image: "/newimgs/fcm-larger-than-life.jpg", title: "Themed Event" },
+  { image: "/newimgs/fcm-themed-dance-performance.jpg", title: "Live Performance" },
+  { image: "/newimgs/franke-anniversary-gala.jpg", title: "Franke Anniversary" },
+  { image: "/newimgs/franke-anniversary-red-carpet.jpg", title: "Red Carpet Arrival" },
+  { image: "/newimgs/franke-interactive-brand-gallery.jpg", title: "Brand Gallery" },
+  { image: "/newimgs/franke-live-vocal-performance.jpg", title: "Vocal Performance" },
+  { image: "/newimgs/franke-violin-performance.jpg", title: "Violin Performance" },
+  { image: "/newimgs/healthcare-talk-audience.jpg", title: "Industry Talk" },
+  { image: "/newimgs/hvacr-next-generation-host-team.jpg", title: "Event Host Team" },
+  { image: "/newimgs/hvacr-panel-discussion.jpg", title: "Panel Discussion" },
+  { image: "/newimgs/intertanko-conference-room.jpg", title: "Council Meeting" },
+  { image: "/newimgs/live-acrobatic-entertainment.jpg", title: "Acrobatic Entertainment" },
+  { image: "/newimgs/london-gate-guest-reception.jpg", title: "Guest Reception" },
+  { image: "/newimgs/london-gate-launch-stage.jpg", title: "Product Launch" },
+  { image: "/newimgs/masquerade-themed-event.jpg", title: "Masquerade Event" },
+  { image: "/newimgs/menalac-award-winners.jpg", title: "Awards Celebration" },
+  { image: "/newimgs/menalac-sport-lounge.jpg", title: "Awards Night" },
+  { image: "/newimgs/outdoor-brand-event-night.jpg", title: "Outdoor Brand Event" },
+  { image: "/newimgs/outdoor-city-gala-dinner.jpg", title: "Outdoor Gala Dinner" },
+  { image: "/newimgs/outdoor-networking-event.jpg", title: "Networking Event" },
+  { image: "/newimgs/polish-african-economic-forum.jpg", title: "Economic Forum" },
+  { image: "/newimgs/rsa-cold-chain-auditorium.jpg", title: "RSA Auditorium" },
+  { image: "/newimgs/rsa-cold-chain-keynote-speaker.jpg", title: "Keynote Session" },
+  { image: "/newimgs/rsa-cold-chain-stage.jpg", title: "RSA Cold Chain Launch" },
+  { image: "/newimgs/team-building-balloon-challenge.jpg", title: "Team Challenge" },
+  { image: "/newimgs/tokai-tanoura-live-performance.jpg", title: "Tanoura Performance" },
+  { image: "/newimgs/united-airlines-event-wide.jpg", title: "United Airlines Event" },
+  { image: "/newimgs/united-airlines-speaker.jpg", title: "Corporate Speaker Session" },
+  { image: "/newimgs/vip-guests-corporate-event.jpg", title: "VIP Guest Experience" },
+  { image: "/newimgs/vip-ribbon-cutting-ceremony.jpg", title: "Ribbon Cutting Ceremony" },
+];
 export default function PortfolioInMotion() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -194,7 +250,7 @@ export default function PortfolioInMotion() {
           <div className="absolute top-0 bottom-0 right-0 w-8 md:w-24 bg-gradient-to-l from-[#0f0f13] to-transparent z-10 pointer-events-none"></div>
 
           <div className="flex w-max animate-marquee gap-3 sm:gap-4 py-4">
-            {[...SLIDES, ...SLIDES].map((slide, idx) => {
+            {[...GALLERY_IMAGES, ...GALLERY_IMAGES].map((slide, idx) => {
               return (
                 <div
                   key={idx}
