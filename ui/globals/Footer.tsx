@@ -63,9 +63,9 @@ export default function Footer() {
           <div className="flex flex-col gap-6">
             <h4 className="text-white/40 font-sans font-bold text-xs tracking-widest uppercase mb-4">Dubai Office</h4>
             <div className="footer-link flex flex-col gap-2 font-sans text-white/80">
-              <p>Dubai Design District (d3)</p>
-              <p>Building 4, Office 123</p>
-              <p>Dubai, UAE</p>
+             <p>Office 371, Building A5</p>
+<p>Business Park, Dubai South</p>
+<p>Dubai, UAE</p>
             </div>
             <a href="mailto:info@purrpleorryx.com" className="footer-link inline-block mt-4 text-[var(--color-accent)] hover:text-white transition-colors font-medium">
               info@purrpleorryx.com
