@@ -22,6 +22,7 @@ const reviews = [
     location: "Google Review",
   },
 ];
+
 export default function Reviews() {
   const containerRef = useRef<HTMLElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
