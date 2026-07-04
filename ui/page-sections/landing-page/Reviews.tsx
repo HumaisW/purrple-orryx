@@ -8,22 +8,22 @@ import ActionButtons from "@/ui/globals/ActionButtons";
 const reviews = [
   {
     quote:
-      "Ankur and his team are very meticulous. They are diligent and responsive - always making time to meet and review details of the set up. All of this helps reduce stress prior to the event and I enjoy working with them. Hopefully more to come.",
+      "Ankur and his team are very meticulous. They are diligent and responsive — always making time to meet and review details of the set up. All of this helps reduce stress prior to the event and I enjoy working with them. Hopefully more to come.",
     name: "Bahaa Moussalli",
-    location: "Annual event - Dubai"
-  },
-  {
-    quote:
-      "Purrple Orryx is a team of talented, customer-oriented event professionals with meticulous attention to detail. Always a pleasure to deal with.",
-    name: "Evgeny Sinelschikov",
-    location: "Conference - UAE"
+    location: "Google Review",
   },
   {
     quote:
       "Ankur and his team go above and beyond the definition of professionalism. They are completely committed to delivering a successful event or project. I have worked with them for 3 years now and would highly recommend their services.",
     name: "Maryam Khorakiwala",
-    location: "Launch event - GCC"
-  }
+    location: "Google Review",
+  },
+  {
+    quote:
+      "Purrple Orryx is a team of talented, customer-oriented event professionals with meticulous attention to detail. Always a pleasure to deal with.",
+    name: "Evgeny Sinelschikov",
+    location: "Google Review",
+  },
 ];
 
 export default function Reviews() {
