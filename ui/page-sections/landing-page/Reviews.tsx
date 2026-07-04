@@ -177,7 +177,7 @@ export default function Reviews() {
               </div>
               <div className="flex flex-col mt-auto pt-6 border-t border-white/5 relative z-10 transition-colors duration-500 group-hover:border-white/20">
                 <span className="text-white font-sans font-bold text-[10px] tracking-widest uppercase mb-2">
-                  {review.role}
+                   {review.name}
                 </span>
                 <span className="text-white/40 font-sans text-xs">
                   {review.location}
