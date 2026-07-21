@@ -69,7 +69,7 @@ export default function Header() {
           </Link>
 
           <Link
-            href="https://wa.me/971551035775"
+           href="https://wa.me/97148842588"
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-1.5 md:gap-2 bg-gradient-to-r from-[#E5097F] to-[#7B2481] px-4 py-2.5 md:px-5 md:py-3 xl:px-7 xl:py-3.5 rounded-[0.75rem] hover:opacity-90 transition-opacity shadow-[0_0_20px_rgba(229,9,127,0.3)]"
