@@ -26,7 +26,7 @@ export default function ActionButtons({ className = "" }: ActionButtonsProps) {
 
       {/* WhatsApp Button - Green */}
       <Link 
-        href="https://wa.me/971551035775" 
+        href="https://wa.me/97148842588"
         target="_blank" 
         rel="noopener noreferrer"
         className="group relative flex items-center justify-center gap-3 bg-[#25D366] px-8 py-4 rounded-full hover:bg-[#1EBE5D] transition-colors shadow-[0_10px_30px_rgba(37,211,102,0.3)] w-full sm:w-auto"
