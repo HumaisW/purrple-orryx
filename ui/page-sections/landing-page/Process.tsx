@@ -13,7 +13,7 @@ const steps = [
     desc: "WhatsApp us or email your brief directly at info@purrpleorryx.com. Tell us the goal, date, audience and location—whatever you already know.",
     img: "/landing page - PO/DSC09999.jpg",
     actions: [
-      { label: "WHATSAPP ↗", href: "https://wa.me/971551035775" },
+    { label: "WHATSAPP ↗", href: "https://wa.me/97148842588" },
       { label: "EMAIL ↗", href: "mailto:info@purrpleorryx.com" }
     ]
   },
