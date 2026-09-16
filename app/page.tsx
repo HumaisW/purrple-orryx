@@ -20,17 +20,22 @@ import Footer from "@/ui/globals/Footer";
 import FloatingContact from "@/ui/globals/FloatingContact";
 
 export default function Home() {
-  const attributionInitialized = useRef(false);
+  const attribution = useRef<{ ref: string; payload: string; sent: boolean } | null>(null);
 
   useEffect(() => {
-    // Run after hydration, once per page mount (including React Strict Mode).
-    if (attributionInitialized.current) return;
-    attributionInitialized.current = true;
-
     const PHONE = "97148842588";
+    const INBOX = "info@purrpleorryx.com";
     const ENDPOINT = "https://prrowess.app.n8n.cloud/webhook/po-click-ref";
     const KEY = "po_click_ref";
-    const q = new URLSearchParams(window.location.search);
+    const PKEY = "po_click_payload";
+    const SENT = "po_click_sent";
+
+    function ss(key: string) {
+      try { return window.sessionStorage.getItem(key); } catch { return null; }
+    }
+    function ssSet(key: string, value: string) {
+      try { window.sessionStorage.setItem(key, value); } catch {}
+    }
 
     function rand(n: number) {
       const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -39,43 +44,95 @@ export default function Home() {
       return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
     }
 
-    const gclid = q.get("gclid") || q.get("gbraid") || q.get("wbraid");
-    let ref: string | null = null;
-    try {
-      ref = window.sessionStorage.getItem(KEY);
-    } catch {
-      // Contact links still work when browser storage is unavailable.
+    function channel(gclid: string | null) {
+      if (gclid) return "G";
+      const referrer = document.referrer || "";
+      if (!referrer) return "D";
+      let hostname: string;
+      try { hostname = new URL(referrer).hostname; } catch { return "D"; }
+      if (hostname.indexOf(window.location.hostname) > -1) return null;
+      if (/google\.|bing\.|yahoo\.|duckduckgo\./.test(hostname)) return "O";
+      if (/facebook\.|instagram\.|linkedin\.|tiktok\.|t\.co|twitter\.|x\.com/.test(hostname)) return "S";
+      return "R";
     }
 
-    if (gclid || !ref) {
-      ref = "PO-" + (gclid ? "G" : "O") + "-" + rand(6);
-      try {
-        window.sessionStorage.setItem(KEY, ref);
-      } catch {
-        // Keep this page's reference in memory if storage is blocked.
+    // Capture on arrival, but never contact the webhook until a contact click.
+    // Keep an in-memory copy for blocked storage and React effect replays.
+    if (!attribution.current) {
+      const q = new URLSearchParams(window.location.search);
+      const gclid = q.get("gclid") || q.get("gbraid") || q.get("wbraid");
+      let ref = ss(KEY);
+      let payload = ss(PKEY);
+      if (!ref || gclid) {
+        const c = channel(gclid);
+        if (c) {
+          ref = "PO-" + c + "-" + rand(6);
+          payload = JSON.stringify({
+            ref,
+            gclid: gclid || "",
+            utm_campaign: q.get("utm_campaign") || "",
+            utm_term: q.get("utm_term") || "",
+            landing_page: window.location.pathname,
+          });
+          ssSet(KEY, ref);
+          ssSet(PKEY, payload);
+        }
       }
-      void fetch(ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ref,
-          gclid: gclid || "",
-          utm_campaign: q.get("utm_campaign") || "",
-          utm_term: q.get("utm_term") || "",
-          landing_page: window.location.pathname,
-        }),
-        keepalive: true,
-      }).catch(() => {});
+      if (!ref) return;
+      attribution.current = {
+        ref,
+        payload: payload || JSON.stringify({ ref, gclid: "", utm_campaign: "", utm_term: "", landing_page: window.location.pathname }),
+        sent: ss(SENT) === ref,
+      };
     }
 
+    const entry = attribution.current;
+    const { ref, payload } = entry;
+    function send() {
+      if (entry.sent || ss(SENT) === ref) return;
+      entry.sent = true;
+      ssSet(SENT, ref);
+      try {
+        if (navigator.sendBeacon?.(ENDPOINT, new Blob([payload], { type: "application/json" }))) return;
+      } catch {}
+      // Also fall back when sendBeacon exists but refuses to queue the request.
+      try {
+        void fetch(ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          keepalive: true,
+        }).catch(() => {});
+      } catch {}
+    }
+
+    const attached = new Set<HTMLAnchorElement>();
     const msg = "Hi Purrple Orryx, I'd like to discuss a corporate event. (Ref: " + ref + ")";
-    document.querySelectorAll<HTMLAnchorElement>('a[href*="wa.me"], a[href*="api.whatsapp.com"]').forEach((a) => {
-      a.href = "https://api.whatsapp.com/send?phone=" + PHONE + "&text=" + encodeURIComponent(msg);
-    });
-    document.querySelectorAll<HTMLAnchorElement>('a[href^="mailto:"]').forEach((a) => {
-      a.href = a.getAttribute("href")!.split("?")[0] +
-        "?subject=" + encodeURIComponent("Event enquiry (Ref: " + ref + ")");
-    });
+    function attach(a: HTMLAnchorElement) {
+      a.setAttribute("data-po-ref", ref);
+      if (attached.has(a)) return;
+      a.addEventListener("click", send, { capture: true });
+      attached.add(a);
+    }
+    function rewrite() {
+      document.querySelectorAll<HTMLAnchorElement>('a[href*="wa.me"],a[href*="api.whatsapp.com"],a[href*="whatsapp.com/send"]').forEach((a) => {
+        a.href = "https://api.whatsapp.com/send?phone=" + PHONE + "&text=" + encodeURIComponent(msg);
+        attach(a);
+      });
+      document.querySelectorAll<HTMLAnchorElement>('a[href^="mailto:"]').forEach((a) => {
+        const href = a.getAttribute("href") || "";
+        if (href.toLowerCase().indexOf(INBOX) === -1) return;
+        a.href = href.split("?")[0] + "?subject=" + encodeURIComponent("Event enquiry (Ref: " + ref + ")");
+        attach(a);
+      });
+    }
+    rewrite();
+    const observer = new MutationObserver(rewrite);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      attached.forEach((a) => a.removeEventListener("click", send, true));
+    };
   }, []);
 
   useEffect(() => {
