@@ -44,8 +44,8 @@ export default function Home() {
       return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
     }
 
-    function channel(gclid: string | null) {
-      if (gclid) return "G";
+    function channel(gclid: string | null, gbraid: string | null, wbraid: string | null) {
+      if (gclid || gbraid || wbraid) return "G";
       const referrer = document.referrer || "";
       if (!referrer) return "D";
       let hostname: string;
@@ -60,16 +60,23 @@ export default function Home() {
     // Keep an in-memory copy for blocked storage and React effect replays.
     if (!attribution.current) {
       const q = new URLSearchParams(window.location.search);
-      const gclid = q.get("gclid") || q.get("gbraid") || q.get("wbraid");
+      const gclid = q.get("gclid");
+      const gbraid = q.get("gbraid");
+      const wbraid = q.get("wbraid");
+      const hasAdsClickId = Boolean(gclid || gbraid || wbraid);
       let ref = ss(KEY);
       let payload = ss(PKEY);
-      if (!ref || gclid) {
-        const c = channel(gclid);
+      if (!ref || hasAdsClickId) {
+        const c = channel(gclid, gbraid, wbraid);
         if (c) {
           ref = "PO-" + c + "-" + rand(6);
           payload = JSON.stringify({
             ref,
             gclid: gclid || "",
+            gbraid: gbraid || "",
+            wbraid: wbraid || "",
+            gad_campaignid: q.get("gad_campaignid") || "",
+            utm_id: q.get("utm_id") || "",
             utm_campaign: q.get("utm_campaign") || "",
             utm_term: q.get("utm_term") || "",
             landing_page: window.location.pathname,
@@ -81,7 +88,7 @@ export default function Home() {
       if (!ref) return;
       attribution.current = {
         ref,
-        payload: payload || JSON.stringify({ ref, gclid: "", utm_campaign: "", utm_term: "", landing_page: window.location.pathname }),
+        payload: payload || JSON.stringify({ ref, gclid: "", gbraid: "", wbraid: "", gad_campaignid: "", utm_id: "", utm_campaign: "", utm_term: "", landing_page: window.location.pathname }),
         sent: ss(SENT) === ref,
       };
     }
@@ -93,13 +100,13 @@ export default function Home() {
       entry.sent = true;
       ssSet(SENT, ref);
       try {
-        if (navigator.sendBeacon?.(ENDPOINT, new Blob([payload], { type: "application/json" }))) return;
+        if (navigator.sendBeacon?.(ENDPOINT, new Blob([payload], { type: "text/plain;charset=UTF-8" }))) return;
       } catch {}
       // Also fall back when sendBeacon exists but refuses to queue the request.
       try {
         void fetch(ENDPOINT, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
           body: payload,
           keepalive: true,
         }).catch(() => {});
