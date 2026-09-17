@@ -57,14 +57,14 @@
     var ok = false;
     try {
       if (navigator.sendBeacon) {
-        ok = navigator.sendBeacon(ENDPOINT, new Blob([payload], { type: 'application/json' }));
+        ok = navigator.sendBeacon(ENDPOINT, new Blob([payload], { type: 'text/plain;charset=UTF-8' }));
       }
     } catch (e) {}
     if (ok) return;
     try {
       fetch(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
         body: payload,
         keepalive: true
       }).catch(function () {});
