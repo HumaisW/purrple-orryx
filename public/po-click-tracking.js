@@ -4,8 +4,8 @@
   var ENDPOINT = 'https://prrowess.app.n8n.cloud/webhook/po-click-ref';
   var KEY = 'po_click_ref', PKEY = 'po_click_payload', SENT = 'po_click_sent';
 
-  function ss(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
-  function ssSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+  function ss(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function ssSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
   function rand(n) {
     var a = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', s = '', b = new Uint8Array(n);
@@ -28,14 +28,30 @@
 
   var q = new URLSearchParams(location.search);
   var gclid = q.get('gclid') || q.get('gbraid') || q.get('wbraid');
+  var WINDOW_DAYS = 30;
+  var stored = null;
+  try { stored = JSON.parse(localStorage.getItem(PKEY) || 'null'); } catch (e) { stored = null; }
   var ref = ss(KEY);
-  if (!ref) {
+
+  if (stored && stored.ts && (Date.now() - stored.ts) > WINDOW_DAYS * 86400000) {
+    try {
+      localStorage.removeItem(KEY);
+      localStorage.removeItem(PKEY);
+      localStorage.removeItem(SENT);
+    } catch (e) {}
+    ref = null; stored = null;
+  }
+
+  var newPaidClick = !!gclid && (!stored || stored.gclid !== gclid);
+  if (!ref || newPaidClick) {
     var c = channel(gclid);
     if (c) {
       ref = 'PO-' + c + '-' + rand(6);
       ssSet(KEY, ref);
+      try { localStorage.removeItem(SENT); } catch (e) {}
       ssSet(PKEY, JSON.stringify({
         ref: ref,
+        ts: Date.now(),
         gclid: q.get('gclid') || '',
         gbraid: q.get('gbraid') || '',
         wbraid: q.get('wbraid') || '',
