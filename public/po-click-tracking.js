@@ -1,5 +1,6 @@
 (function () {
   var PHONE = '97148842588';
+  var INBOX = 'info@purrpleorryx.com';
   var ENDPOINT = 'https://prrowess.app.n8n.cloud/webhook/po-click-ref';
   var KEY = 'po_click_ref', PKEY = 'po_click_payload', SENT = 'po_click_sent';
 
@@ -28,8 +29,6 @@
   var q = new URLSearchParams(location.search);
   var gclid = q.get('gclid') || q.get('gbraid') || q.get('wbraid');
   var ref = ss(KEY);
-
-  // Mint once per session. Never replace a stored reference.
   if (!ref) {
     var c = channel(gclid);
     if (c) {
@@ -55,12 +54,13 @@
     ssSet(SENT, ref);
     var payload = ss(PKEY);
     if (!payload) return;
+    var ok = false;
     try {
       if (navigator.sendBeacon) {
-        navigator.sendBeacon(ENDPOINT, new Blob([payload], { type: 'application/json' }));
-        return;
+        ok = navigator.sendBeacon(ENDPOINT, new Blob([payload], { type: 'application/json' }));
       }
     } catch (e) {}
+    if (ok) return;
     try {
       fetch(ENDPOINT, {
         method: 'POST',
@@ -71,19 +71,28 @@
     } catch (e) {}
   }
 
-  ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(function (evt) {
-    window.addEventListener(evt, register, { once: true, capture: true, passive: true });
-  });
-
   var msg = "Hi Purrple Orryx, I'd like to discuss a corporate event. (Ref: " + ref + ")";
+
+  function arm(a) {
+    a.setAttribute('data-po-ref', ref);
+    a.addEventListener('pointerdown', register, { capture: true });
+    a.addEventListener('touchstart', register, { capture: true, passive: true });
+    a.addEventListener('click', register, { capture: true });
+  }
 
   function rewrite() {
     document.querySelectorAll('a[href*="wa.me"],a[href*="api.whatsapp.com"],a[href*="whatsapp.com/send"]').forEach(function (a) {
       if (a.getAttribute('data-po-ref') === ref) return;
       a.href = 'https://api.whatsapp.com/send?phone=' + PHONE + '&text=' + encodeURIComponent(msg);
-      a.setAttribute('data-po-ref', ref);
-      a.addEventListener('pointerdown', register, { capture: true });
-      a.addEventListener('click', register, { capture: true });
+      arm(a);
+    });
+
+    document.querySelectorAll('a[href^="mailto:"]').forEach(function (a) {
+      var h = a.getAttribute('href') || '';
+      if (h.toLowerCase().indexOf(INBOX) === -1) return;
+      if (a.getAttribute('data-po-ref') === ref) return;
+      a.href = h.split('?')[0] + '?subject=' + encodeURIComponent('Event enquiry (Ref: ' + ref + ')');
+      arm(a);
     });
   }
 
