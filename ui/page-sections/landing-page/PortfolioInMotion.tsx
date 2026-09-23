@@ -131,7 +131,7 @@ export default function PortfolioInMotion() {
   };
 
   return (
-    <section className="bg-[#0f0f13] text-white py-16 md:py-24 lg:py-32 overflow-hidden">
+    <section id="work" className="bg-[#0f0f13] text-white py-16 md:py-24 lg:py-32 overflow-hidden">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:px-16">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-8 xl:gap-16 items-start">
           {/* Left Column */}
