@@ -65,39 +65,109 @@
   }
   if (!ref) return;
 
-  function register() {
-    if (ss(SENT) === ref) return;
-    ssSet(SENT, ref);
+  // ---------------------------------------------------------------------
+  // Reporting the click to n8n.
+  //
+  // Three defects fixed here, all of which silently lost ad attribution:
+  //
+  // 1. TIMING. This used to run only when the visitor tapped WhatsApp,
+  // i.e. at the exact moment the browser was tearing the page down to
+  // navigate to wa.me. The request was routinely discarded in flight.
+  // It now runs on page load, while the page is sitting still, so the
+  // request completes normally. The tap no longer has to carry it.
+  //
+  // 2. PREMATURE SUCCESS. The 'sent' flag used to be written BEFORE the
+  // send was attempted, so any failure was permanent: the flag said
+  // done, and that click's campaign, keyword and gclid were lost for
+  // good. The flag is now written only after the server confirms.
+  //
+  // 3. FALSE RECEIPT. navigator.sendBeacon returning true means 'queued',
+  // not 'delivered'. The old code read that as success and skipped its
+  // own fallback, so the fallback only ever ran when it wasn't needed.
+  // Beacon is now a last-ditch attempt on the tap only, and is never
+  // treated as proof of delivery.
+  //
+  // The endpoint returns CORS headers, so res.ok is a genuine receipt.
+  // Keep the text/plain content type: it avoids a CORS preflight, which
+  // this request cannot satisfy.
+  // ---------------------------------------------------------------------
+
+  var MAX_TRIES = 5;
+  var tries = 0;
+  var inFlight = false;
+
+  function delivered() { return ss(SENT) === ref; }
+
+  function send() {
+    if (delivered() || inFlight || tries >= MAX_TRIES) return;
     var payload = ss(PKEY);
     if (!payload) return;
-    var ok = false;
+
+    inFlight = true;
+    tries++;
+
+    fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: payload,
+      keepalive: true
+    }).then(function (res) {
+      inFlight = false;
+      if (res && res.ok) ssSet(SENT, ref);
+      else retryLater();
+    }).catch(function () {
+      inFlight = false;
+      retryLater();
+    });
+  }
+
+  function retryLater() {
+    if (delivered() || tries >= MAX_TRIES) return;
+    setTimeout(send, Math.min(30000, 1000 * Math.pow(2, tries)));
+  }
+
+  // Last-ditch only, used on the tap when the page-load send has not yet
+  // succeeded and we are about to navigate away. Deliberately does NOT
+  // record success, because it cannot know. Worst case is one duplicate
+  // row, which the resolver ignores — it matches on ref and takes the
+  // first hit. A duplicate row is cheap; a lost click is not.
+  function beaconFallback() {
+    if (delivered()) return;
+    var payload = ss(PKEY);
+    if (!payload) return;
     try {
       if (navigator.sendBeacon) {
-        ok = navigator.sendBeacon(ENDPOINT, new Blob([payload], { type: 'text/plain;charset=UTF-8' }));
+        navigator.sendBeacon(
+          ENDPOINT,
+          new Blob([payload], { type: 'text/plain;charset=UTF-8' })
+        );
       }
     } catch (e) {}
-    if (ok) return;
-    try {
-      fetch(ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-        body: payload,
-        keepalive: true
-      }).catch(function () {});
-    } catch (e) {}
   }
+
+  // Report the click now, not on the tap.
+  send();
+
+  // And pick it up again if the first attempt failed because the device
+  // was offline or the tab was backgrounded mid-load.
+  window.addEventListener('online', send);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') send();
+  });
 
   var msg = "Hi Purrple Orryx, I'd like to discuss a corporate event. (Ref: " + ref + ")";
 
   function arm(a) {
     a.setAttribute('data-po-ref', ref);
-    a.addEventListener('pointerdown', register, { capture: true });
-    a.addEventListener('touchstart', register, { capture: true, passive: true });
-    a.addEventListener('click', register, { capture: true });
+    a.addEventListener('pointerdown', beaconFallback, { capture: true });
+    a.addEventListener('touchstart', beaconFallback, { capture: true, passive: true });
+    a.addEventListener('click', beaconFallback, { capture: true });
   }
 
   function rewrite() {
-    document.querySelectorAll('a[href*="wa.me"],a[href*="api.whatsapp.com"],a[href*="whatsapp.com/send"]').forEach(function (a) {
+    document.querySelectorAll(
+      'a[href*="wa.me"],a[href*="api.whatsapp.com"],a[href*="whatsapp.com/send"]'
+    ).forEach(function (a) {
       if (a.getAttribute('data-po-ref') === ref) return;
       a.href = 'https://api.whatsapp.com/send?phone=' + PHONE + '&text=' + encodeURIComponent(msg);
       arm(a);
@@ -113,5 +183,7 @@
   }
 
   rewrite();
-  try { new MutationObserver(rewrite).observe(document.body, { childList: true, subtree: true }); } catch (e) {}
+  try {
+    new MutationObserver(rewrite).observe(document.body, { childList: true, subtree: true });
+  } catch (e) {}
 })();
