@@ -112,6 +112,7 @@ export default function EventTypes() {
             return (
               <div
                 key={idx}
+                id={idx === 0 ? "gala-awards" : idx === 1 ? "conferences" : idx === 2 ? "launches" : undefined}
                 className={`event-card relative rounded-none overflow-hidden group cursor-pointer ${gridClasses}`}
               >
                 <Image
